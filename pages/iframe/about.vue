@@ -2,8 +2,8 @@
   <div class="container">
     <h2> About </h2>
     <div>
-      <nuxt-link to="/">index</nuxt-link>
-      <nuxt-link to="/about">about</nuxt-link>
+      <nuxt-link to="/iframe">index</nuxt-link>
+      <nuxt-link to="/iframe/about">about</nuxt-link>
     </div>
   </div>
 </template>

@@ -5,8 +5,8 @@
     <button v-if="!iframe.params.modal" @click="iframe.emit('modal', 'description')">Open Modal</button>
     <button v-else @click="iframe.emit('modal', null)">Close Modal</button>
     <div>
-      <nuxt-link to="/">index</nuxt-link>
-      <nuxt-link to="/about">about</nuxt-link>
+      <nuxt-link to="/iframe">index</nuxt-link>
+      <nuxt-link to="/iframe/about">about</nuxt-link>
     </div>
   </div>
 </template>
