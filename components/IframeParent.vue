@@ -1,13 +1,12 @@
 <template>
     <iframe
-      :src="url"
+      :src="src"
       :style="{ height: `${iframeHeight}px` }"
-       />
+      :name="name"
+    />
 </template>
 
 <script>
-  import * as qs from 'qs'
-
   export default {
     name: 'IframeParent',
     inheritAttrs: false,
@@ -19,46 +18,52 @@
     },
     data() {
       return {
-        iframeHeight: null
-      };
+        name: Math.random().toString(36).substring(7),
+        iframeHeight: null,
+        iframeUrl: this.src,
+      }
     },
     mounted() {
-      window.addEventListener("message", this.handleMessage);
+      window.addEventListener('message', this.handleMessage)
     },
     destroyed() {
-      window.removeEventListener("message", this.handleMessage);
+      window.removeEventListener('message', this.handleMessage)
     },
-    computed: {
-      url() {
-        const url = new URL(this.src)
-
-        const params = qs.stringify({
-          ...qs.parse(url.search),
-          ...this.$attrs,
-        })
-
-        url.search = params
-
-        return url.toString()
+    watch: {
+      $attrs(values) {
+        this.updateParams()
       },
     },
     methods: {
-      handleMessage({ data }) {
-        if (data.iframeHeight) {
-          this.iframeHeight = data.iframeHeight;
+      updateParams() {
+        window.frames[this.name].setDataFromParent({
+          ...this.$attrs,
+        })
+      },
+
+      handleMessage({ data: { fromIframe, type, payload } }) {
+        if (!fromIframe) {
+          return
         }
 
-        if (data.event) {
-          this.$emit(data.event.name, data.event.value)
+        const actions = {
+          mounted: () => this.updateParams(),
+          iframeHeight: height => this.iframeHeight = height,
+          iframeUrl: url => this.iframeUrl = url,
         }
+
+        actions[type]?.(payload)
+
+        this.$emit(type, payload)
       },
     },
+
   }
 </script>
 
 <style scoped>
-  iframe {
-    width: 100%;
-    border: none;
-  }
+    iframe {
+        width: 100%;
+        border: none;
+    }
 </style>

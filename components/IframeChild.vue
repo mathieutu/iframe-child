@@ -9,32 +9,43 @@
     name: 'IframeChild',
     provide() {
       return {
-        iframe: {
-          params: this.params,
-          emit: (name, value) => this.postMessage({event: {name, value}}),
-        },
+        iframe: this.iframe,
       }
     },
     data() {
       return {
-        params: this.$route.query,
+        iframe: {
+          params: {},
+          emit: this.postMessage,
+        },
       }
     },
     mounted() {
       const resizeObserver = new ResizeObserver(() => {
         // Can't use entry.contentRect because of polyfill misbehavior
-        this.postMessage({ iframeHeight: document.body.offsetHeight })
+        this.postMessage('iframeHeight', document.body.offsetHeight)
       })
       resizeObserver.observe(document.body)
+
+      window.onpopstate = () => {
+        this.postMessage('iframeUrl', location.href)
+      }
+
+      window.setDataFromParent = data => this.setDataFromParent(data)
+
+      this.postMessage('mounted')
     },
     methods: {
-      postMessage(message) {
+      postMessage(type, payload) {
         parent.window.postMessage(
-          message,
+          { fromIframe: true, type, payload },
           '*',
         )
       },
+
+      setDataFromParent(data) {
+        this.iframe.params = { ...data };
+      }
     },
-    computed: {},
   }
 </script>

@@ -2,17 +2,6 @@
 export default {
   mode: 'spa',
 
-  router: {
-    parseQuery (query) {
-      return require('qs').parse(query)
-    },
-    stringifyQuery( query) {
-      const result = require('qs').stringify(query)
-
-      return result ? ('?' + result) : ''
-    },
-
-  },
   /*
   ** Headers of the page
   */
