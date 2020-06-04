@@ -1,8 +1,8 @@
 <template>
     <iframe
-      :src="src"
-      :style="{ height: `${iframeHeight}px` }"
-      :name="name"
+            :src="src"
+            :style="{ height: `${iframeHeight}px` }"
+            :name="name"
     />
 </template>
 
@@ -30,15 +30,17 @@
       window.removeEventListener('message', this.handleMessage)
     },
     watch: {
-      $attrs(values) {
+      $attrs() {
         this.updateParams()
       },
     },
     methods: {
       updateParams() {
-        window.frames[this.name].setDataFromParent({
-          ...this.$attrs,
-        })
+        window.frames[this.name].postMessage({
+          fromParent: true,
+          type: 'setData',
+          payload: this.$attrs,
+        }, '*')
       },
 
       handleMessage({ data: { fromIframe, type, payload } }) {
@@ -46,8 +48,10 @@
           return
         }
 
+        console.log({ fromIframe, type, payload });
+
         const actions = {
-          mounted: () => this.updateParams(),
+          mounted: this.updateParams,
           iframeHeight: height => this.iframeHeight = height,
           iframeUrl: url => this.iframeUrl = url,
         }

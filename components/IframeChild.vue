@@ -20,7 +20,12 @@
         },
       }
     },
+    destroyed() {
+      window.removeEventListener('message', this.handleMessage)
+    },
     mounted() {
+      window.addEventListener('message', this.handleMessage)
+
       const resizeObserver = new ResizeObserver(() => {
         // Can't use entry.contentRect because of polyfill misbehavior
         this.postMessage('iframeHeight', document.body.offsetHeight)
@@ -30,8 +35,6 @@
       window.onpopstate = () => {
         this.postMessage('iframeUrl', location.href)
       }
-
-      window.setDataFromParent = data => this.setDataFromParent(data)
 
       this.postMessage('mounted')
     },
@@ -44,8 +47,20 @@
       },
 
       setDataFromParent(data) {
-        this.iframe.params = { ...data };
-      }
+        this.iframe.params = data;
+      },
+
+      handleMessage({ data: { fromParent, type, payload } }) {
+        console.log({ fromParent, type, payload });
+
+        if (!fromParent) {
+          return
+        }
+        if (type === 'setData') {
+          this.setDataFromParent(payload)
+        }
+
+      },
     },
   }
 </script>

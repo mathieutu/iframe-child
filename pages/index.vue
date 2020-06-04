@@ -3,7 +3,7 @@
 
     <h1>My iframe</h1>
     <label for="foo">Foo:</label>
-    <input v-model="foo" id="foo"></input>
+    <input v-model="foo" id="foo"/>
     <IframeParent
       src="/iframe"
       :foo="foo"
