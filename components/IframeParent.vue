@@ -7,6 +7,8 @@
 </template>
 
 <script>
+  import postRobot from 'post-robot'
+
   export default {
     name: 'IframeParent',
     inheritAttrs: false,
@@ -21,13 +23,13 @@
         name: Math.random().toString(36).substring(7),
         iframeHeight: null,
         iframeUrl: this.src,
+
       }
     },
     mounted() {
-      window.addEventListener('message', this.handleMessage)
-    },
-    destroyed() {
-      window.removeEventListener('message', this.handleMessage)
+      postRobot.on('mounted', () => this.handleIFrameMounted())
+      postRobot.on('modal', (evt) => this.handleModal(evt.data))
+      postRobot.on('iframeHeight', (evt) => this.handleIframeHeight(evt.data.height))
     },
     watch: {
       $attrs() {
@@ -36,29 +38,19 @@
     },
     methods: {
       updateParams() {
-        window.frames[this.name].postMessage({
-          fromParent: true,
-          type: 'setData',
-          payload: this.$attrs,
-        }, '*')
+        postRobot.send(window.frames[this.name], 'setData', { ...this.$attrs })
+      },
+      handleIFrameMounted() {
+        this.updateParams()
+        this.$emit('iframeHeight')
+      },
+      handleIframeHeight(height) {
+        this.iframeHeight = height
+        this.$emit('iframeHeight', height)
       },
 
-      handleMessage({ data: { fromIframe, type, payload } }) {
-        if (!fromIframe) {
-          return
-        }
-
-        console.log({ fromIframe, type, payload });
-
-        const actions = {
-          mounted: this.updateParams,
-          iframeHeight: height => this.iframeHeight = height,
-          iframeUrl: url => this.iframeUrl = url,
-        }
-
-        actions[type]?.(payload)
-
-        this.$emit(type, payload)
+      handleModal(type) {
+        this.$emit('modal', type)
       },
     },
 

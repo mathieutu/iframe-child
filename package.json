@@ -11,6 +11,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "nuxt": "^2.0.0"
+    "nuxt": "^2.0.0",
+    "post-robot": "^10.0.31"
   }
 }

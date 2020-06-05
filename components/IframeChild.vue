@@ -5,6 +5,8 @@
 </template>
 
 <script>
+  import postRobot from 'post-robot'
+
   export default {
     name: 'IframeChild',
     provide() {
@@ -16,50 +18,31 @@
       return {
         iframe: {
           params: {},
-          emit: this.postMessage,
+          emit: this.postMessage
         },
       }
     },
-    destroyed() {
-      window.removeEventListener('message', this.handleMessage)
-    },
     mounted() {
-      window.addEventListener('message', this.handleMessage)
+      postRobot.on('setData', (evt) => this.setDataFromParent(evt.data))
 
       const resizeObserver = new ResizeObserver(() => {
         // Can't use entry.contentRect because of polyfill misbehavior
-        this.postMessage('iframeHeight', document.body.offsetHeight)
+        this.postMessage('iframeHeight', {offsetHeight: document.body.offsetHeight})
       })
       resizeObserver.observe(document.body)
 
       window.onpopstate = () => {
-        this.postMessage('iframeUrl', location.href)
+        this.postMessage('iframeUrl', { href: location.href })
       }
 
       this.postMessage('mounted')
     },
     methods: {
-      postMessage(type, payload) {
-        parent.window.postMessage(
-          { fromIframe: true, type, payload },
-          '*',
-        )
+      postMessage(eventName, payload) {
+        postRobot.send(parent.window, eventName, payload)
       },
-
       setDataFromParent(data) {
         this.iframe.params = data;
-      },
-
-      handleMessage({ data: { fromParent, type, payload } }) {
-        console.log({ fromParent, type, payload });
-
-        if (!fromParent) {
-          return
-        }
-        if (type === 'setData') {
-          this.setDataFromParent(payload)
-        }
-
       },
     },
   }

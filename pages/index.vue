@@ -12,17 +12,19 @@
       @modal="modal = $event"
     />
 
-    <IframeParent
-      src="https://vibrant-blackwell-b21045.netlify.app/"
-      :foo="foo"
-      :i="['plop', 'test']"
-      :modal="modal"
-      @modal="modal = $event"
-    />
+<!--    <IframeParent-->
+
+<!--      src="https://vibrant-blackwell-b21045.netlify.app/"-->
+<!--      :foo="foo"-->
+<!--      :i="['plop', 'test']"-->
+<!--      :modal="modal"-->
+<!--      @modal="modal = $event"-->
+<!--    />-->
 
     <div style="margin-top: 20px" v-if="modal">
       Je suis une modale avec pour info : {{ modal }}
     </div>
+    <!--      src="https://vibrant-blackwell-b21045.netlify.app/"-->
   </div>
 </template>
 
